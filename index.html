@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Controle de Locações - Família</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 Controle de Entradas e Saídas</h1>
+    <p class="subtitle">Sistema de locações da família Tamura</p>
+
+    <!--  TABELA PRINCIPAL  -->
+    <table id="tabela">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Lançamento</th>
+                <th>Valor (R$)</th>
+                <th>Saldo (R$)</th>
+                <th>Observação</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody id="corpoTabela"></tbody>
+    </table>
+
+    <button id="btnNovaLinha" type="button">➕ Nova Linha</button>
+
+
+    <p id="msgSalvo" class="msg-salvo">Dados salvos com sucesso ✔</p>
+
+    <!--  DASHBOARD PRINCIPAL  -->
+    <div class="dashboard">
+        <div class="card saldo">
+            <h3>💰 Saldo Atual</h3>
+            <span id="dashSaldo">R$ 0,00</span>
+        </div>
+
+        <div class="card entrada">
+            <h3>📥 Total Entradas</h3>
+            <span id="dashEntradas">R$ 0,00</span>
+        </div>
+
+        <div class="card saida">
+            <h3>📤 Total Saídas</h3>
+            <span id="dashSaidas">R$ 0,00</span>
+        </div>
+
+        <div class="card">
+            <h3>🧾 Lançamentos</h3>
+            <span id="dashQtd">0</span>
+        </div>
+
+        <div class="card entrada">
+            <h3>⬆️ Maior Entrada</h3>
+            <span id="dashMaiorEntrada">R$ 0,00</span>
+        </div>
+
+        <div class="card saida">
+            <h3>⬇️ Maior Saída</h3>
+            <span id="dashMaiorSaida">R$ 0,00</span>
+        </div>
+
+        <!-- Lucro teórico (50/50) -->
+        <div class="card lucro">
+            <h3>💼 Lucro Teórico – Sandra</h3>
+            <span id="dashLucroSandra">R$ 0,00</span>
+        </div>
+
+        <div class="card lucro">
+            <h3>💼 Lucro Teórico – Suely</h3>
+            <span id="dashLucroSuely">R$ 0,00</span>
+        </div>
+    </div>
+
+    <!--  DISTRIBUIÇÃO  -->
+    <h2>📤 Distribuição de Lucros</h2>
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>Mês</th>
+                <th>Data</th>
+                <th>Pessoa</th>
+                <th>Tipo</th>
+                <th>Valor (R$)</th>
+                <th>Saldo Distribuição</th>
+                <th>Observação</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody id="corpoDistribuicao"></tbody>
+    </table>
+
+    <button id="btnNovaDistribuicao" type="button">➕ Nova Distribuição</button>
+
+    
+    <div class="acoes">
+        <button id="btnSalvar" type="button">💾 Salvar</button>
+        <button id="btnImportar" type="button">📂 Importar Backup</button>
+        <input type="file" id="inputBackup" accept=".json" hidden>
+    </div>
+
+    <!--  DASHBOARD DISTRIBUIÇÃO  -->
+    <h3>Resumo da Distribuição</h3>
+
+    <!-- BLOCO 1 -->
+    <div class="dashboard">
+        <div class="card destaque">
+            <small>Lucro Disponível</small>
+            <strong id="dashLucroTotal">R$ 0,00</strong>
+        </div>
+
+        <div class="card">
+            <small>Total Distribuído</small>
+            <strong id="dashDistribuido">R$ 0,00</strong>
+        </div>
+
+        <div class="card alerta">
+            <small>Saldo Pendente</small>
+            <strong id="dashPendente">R$ 0,00</strong>
+        </div>
+    </div>
+
+    <!-- BLOCO 2 -->
+    <div class="dashboard">
+        <div class="card">
+            <small>Distribuído para Sandra</small>
+            <strong id="dashDistribuidoSandra">R$ 0,00</strong>
+        </div>
+
+        <div class="card">
+            <small>Distribuído para Suely</small>
+            <strong id="dashDistribuidoSuely">R$ 0,00</strong>
+        </div>
+    </div>
+
+    <!-- BLOCO 3 -->
+    <div class="dashboard">
+        <div class="card">
+            <small>Quantidade de Envios</small>
+            <strong id="dashQtdEnvios">0</strong>
+        </div>
+
+        <div class="card">
+            <small>Última Data de Envio</small>
+            <strong id="dashUltimaData">—</strong>
+        </div>
+
+        <div class="card">
+            <small>Último Mês Distribuído</small>
+            <strong id="dashUltimoMes">—</strong>
+        </div>
+    </div>
+
+
+    <h3>📅 Análise Mensal</h3>
+
+<div class="filtro-mes">
+    <label for="filtroMes">Selecionar mês:</label>
+    <input type="month" id="filtroMes">
+</div>
+
+<div class="dashboard">
+    <div class="card entrada">
+        <h3>📥 Entradas no Mês</h3>
+        <span id="dashMesEntradas">R$ 0,00</span>
+    </div>
+
+    <div class="card saida">
+        <h3>📤 Saídas no Mês</h3>
+        <span id="dashMesSaidas">R$ 0,00</span>
+    </div>
+
+    <div class="card lucro">
+        <h3>💼 Sandra (Mês)</h3>
+        <span id="dashMesSandra">R$ 0,00</span>
+    </div>
+
+    <div class="card lucro">
+        <h3>💼 Suely (Mês)</h3>
+        <span id="dashMesSuely">R$ 0,00</span>
+    </div>
+
+    <div class="card saldo">
+        <h3>📊 Resultado do Mês</h3>
+        <span id="dashMesResultado">R$ 0,00</span>
+    </div>
+</div>  
+
+</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
