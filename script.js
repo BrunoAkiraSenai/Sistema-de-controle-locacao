@@ -26,6 +26,17 @@ function criarLinha(item = {}) {
 
     tr.innerHTML = `
         <td><input type="date" value="${item.data || ""}"></td>
+
+        <td>
+            <select>
+                <option value="">Selecione</option>
+                <option value="Eletronica" ${item.loja === "Eletronica" ? "selected" : ""}>Eletrônica</option>
+                <option value="Casa do Norte" ${item.loja === "Casa do Norte" ? "selected" : ""}>Casa do Norte</option>
+                <option value="Bar" ${item.loja === "Bar" ? "selected" : ""}>Bar</option>
+                <option value="Hotel" ${item.loja === "Hotel" ? "selected" : ""}>Hotel</option>
+            </select>
+        </td>
+
         <td>
             <select>
                 <option value="">Selecione</option>
@@ -33,10 +44,20 @@ function criarLinha(item = {}) {
                 <option value="saida" ${item.lancamento === "saida" ? "selected" : ""}>Saída</option>
             </select>
         </td>
-        <td><input type="number" step="0.01" value="${item.valor ? Math.abs(item.valor) : ""}"></td>
+
+        <td>
+            <input type="number" step="0.01" value="${item.valor ? Math.abs(item.valor) : ""}">
+        </td>
+
         <td class="saldo">0.00</td>
-        <td><input type="text" value="${item.observacao || ""}"></td>
-        <td><button class="btn-delete">🗑️</button></td>
+
+        <td>
+            <input type="text" value="${item.observacao || ""}">
+        </td>
+
+        <td>
+            <button class="btn-delete">🗑️</button>
+        </td>
     `;
 
     tr.querySelector(".btn-delete").onclick = () => {
@@ -56,44 +77,94 @@ function atualizarSistema() {
     dados = [];
 
     [...corpoTabela.children].forEach(tr => {
-        const data = tr.children[0].querySelector("input").value;
-        const tipo = tr.children[1].querySelector("select").value;
-        const valorBase = parseFloat(tr.children[2].querySelector("input").value) || 0;
-        const obs = tr.children[4].querySelector("input").value;
+      const data = tr.children[0].querySelector("input").value;
+const loja = tr.children[1].querySelector("select").value;
+const tipo = tr.children[2].querySelector("select").value;
+const valorBase = parseFloat(tr.children[3].querySelector("input").value) || 0;
+const obs = tr.children[5].querySelector("input").value;
 
         const valor = tipo === "saida" ? -valorBase : valorBase;
         saldo += valor;
 
         tr.querySelector(".saldo").innerText = saldo.toFixed(2);
 
-        dados.push({ data, lancamento: tipo, valor, observacao: obs, saldo });
+       dados.push({
+    data,
+    loja,
+    lancamento: tipo,
+    valor,
+    observacao: obs,
+    saldo
+});
     });
 
     salvarStorage();
     atualizarDashboard();
     atualizarDashboardDistribuicao();
+    atualizarPainelLojas();
 }
 
 //  DASHBOARD PRINCIPAL 
 function atualizarDashboard() {
-    let entradas = 0, saidas = 0;
+    let totalEntradas = 0;
+    let totalSaidas = 0;
+
+    let maiorEntrada = 0;
+    let maiorSaida = 0; // valor absoluto
 
     dados.forEach(d => {
-        if (d.valor > 0) entradas += d.valor;
-        else saidas += d.valor;
+        if (typeof d.valor !== "number") return;
+
+        // ENTRADAS
+        if (d.valor > 0) {
+            totalEntradas += d.valor;
+
+            if (d.valor > maiorEntrada) {
+                maiorEntrada = d.valor;
+            }
+        }
+
+        // SAÍDAS
+        if (d.valor < 0) {
+            totalSaidas += Math.abs(d.valor);
+
+            if (Math.abs(d.valor) > maiorSaida) {
+                maiorSaida = Math.abs(d.valor);
+            }
+        }
     });
 
-    const saldo = dados.length ? dados[dados.length - 1].saldo : 0;
-    const metade = saldo > 0 ? saldo / 2 : 0;
+    const saldoAtual = dados.length
+        ? dados[dados.length - 1].saldo
+        : 0;
 
-    document.getElementById("dashSaldo").innerText = `R$ ${saldo.toFixed(2)}`;
-    document.getElementById("dashEntradas").innerText = `R$ ${entradas.toFixed(2)}`;
-    document.getElementById("dashSaidas").innerText = `R$ ${Math.abs(saidas).toFixed(2)}`;
-    document.getElementById("dashQtd").innerText = dados.length;
-    document.getElementById("dashLucroSandra").innerText = `R$ ${metade.toFixed(2)}`;
-    document.getElementById("dashLucroSuely").innerText = `R$ ${metade.toFixed(2)}`;
+    const lucroMetade = saldoAtual > 0 ? saldoAtual / 2 : 0;
+
+    // ================= ATUALIZA DASHBOARD =================
+    document.getElementById("dashSaldo").innerText =
+        `R$ ${saldoAtual.toFixed(2)}`;
+
+    document.getElementById("dashEntradas").innerText =
+        `R$ ${totalEntradas.toFixed(2)}`;
+
+    document.getElementById("dashSaidas").innerText =
+        `R$ ${totalSaidas.toFixed(2)}`;
+
+    document.getElementById("dashQtd").innerText =
+        dados.length;
+
+    document.getElementById("dashMaiorEntrada").innerText =
+        `R$ ${maiorEntrada.toFixed(2)}`;
+
+    document.getElementById("dashMaiorSaida").innerText =
+        `R$ ${maiorSaida.toFixed(2)}`;
+
+    document.getElementById("dashLucroSandra").innerText =
+        `R$ ${lucroMetade.toFixed(2)}`;
+
+    document.getElementById("dashLucroSuely").innerText =
+        `R$ ${lucroMetade.toFixed(2)}`;
 }
-
 //  DISTRIBUIÇÃO 
 function criarLinhaDistribuicao(item = {}) {
     const tr = document.createElement("tr");
@@ -301,3 +372,51 @@ function atualizarDashboardMensal() {
     document.getElementById("dashMesResultado").innerText =
         `R$ ${resultado.toFixed(2)}`;
 }
+
+function atualizarPainelLojas() {
+    const lojas = ["Eletronica", "Casa do Norte", "Bar", "Hotel"];
+    const painel = document.getElementById("painelLojas");
+
+    painel.innerHTML = "";
+
+    lojas.forEach(loja => {
+        const registros = dados.filter(d => d.loja === loja);
+
+        let status = "🔴";
+        let classe = "alerta";
+        let textoStatus = "Sem movimentação";
+
+        if (registros.length) {
+            const ultimo = registros[registros.length - 1];
+
+            if (ultimo.valor > 0) {
+                status = "🟢";
+                classe = "entrada";
+                textoStatus = "Entrada registrada";
+            } else {
+                status = "🟡";
+                classe = "saida";
+                textoStatus = "Somente saída";
+            }
+
+            painel.innerHTML += `
+                <div class="card ${classe}">
+                    <h3>${status} ${loja}</h3>
+                    <p><strong>Última data:</strong> ${ultimo.data || "—"}</p>
+                    <p><strong>Tipo:</strong> ${ultimo.lancamento}</p>
+                    <p><strong>Valor:</strong> R$ ${Math.abs(ultimo.valor).toFixed(2)}</p>
+                    <small>${textoStatus}</small>
+                </div>
+            `;
+        } else {
+            painel.innerHTML += `
+                <div class="card alerta">
+                    <h3>🔴 ${loja}</h3>
+                    <p>Sem lançamentos registrados</p>
+                    <small>⚠️ Verificar pagamento</small>
+                </div>
+            `;
+        }
+    });
+}
+
