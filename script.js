@@ -205,7 +205,6 @@ function atualizarDashboardDistribuicao() {
         if (d.pessoa === "Sandra") sandra += d.valor;
         if (d.pessoa === "Suely") suely += d.valor;
 
-        // 🔹 Última Data de Envio
         if (d.data) {
             const [ano, mes, dia] = d.data.split("-");
 const dataObj = new Date(ano, mes - 1, dia);
@@ -214,7 +213,7 @@ const dataObj = new Date(ano, mes - 1, dia);
             }
         }
 
-        // 🔹 Último Mês Distribuído
+        
         if (d.mes) {
             const mesObj = new Date(d.mes + "-01");
             if (!ultimoMes || mesObj > ultimoMes) {
@@ -286,7 +285,52 @@ function atualizarDashboardMensal() {
 }
 
 function atualizarPainelLojas() {
-    // Mantive simples para não quebrar sua lógica original
+    const lojas = ["Eletronica", "Casa do Norte", "Bar", "Hotel"];
+    const painel = document.getElementById("painelLojas");
+
+    if (!painel) return;
+
+    painel.innerHTML = "";
+
+    lojas.forEach(loja => {
+        const registros = dados.filter(d => d.loja === loja);
+
+        let status = "🔴";
+        let classe = "alerta";
+        let textoStatus = "Sem movimentação";
+
+        if (registros.length) {
+            const ultimo = registros[registros.length - 1];
+
+            if (ultimo.valor > 0) {
+                status = "🟢";
+                classe = "entrada";
+                textoStatus = "Entrada registrada";
+            } else {
+                status = "🟡";
+                classe = "saida";
+                textoStatus = "Somente saída";
+            }
+
+            painel.innerHTML += `
+                <div class="card ${classe}">
+                    <h3>${status} ${loja}</h3>
+                    <p><strong>Última data:</strong> ${ultimo.data || "—"}</p>
+                    <p><strong>Tipo:</strong> ${ultimo.lancamento || "—"}</p>
+                    <p><strong>Valor:</strong> R$ ${Math.abs(ultimo.valor).toFixed(2)}</p>
+                    <small>${textoStatus}</small>
+                </div>
+            `;
+        } else {
+            painel.innerHTML += `
+                <div class="card alerta">
+                    <h3>🔴 ${loja}</h3>
+                    <p>Sem lançamentos registrados</p>
+                    <small>⚠️ Verificar pagamento</small>
+                </div>
+            `;
+        }
+    });
 }
 
 function formatarMoeda(valor) {
